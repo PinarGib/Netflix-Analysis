@@ -1,2 +1,3 @@
 # Netflix-Analysis
-Netflix - capstone project
+
+This repository contains an in-depth analysis of the Netflix TV Shows and Movies dataset, which includes all shows available on Netflix streaming as of July 2022 in the United States. The dataset, sourced from [Kaggle](https://www.kaggle.com/datasets/victorsoeiro/netflix-tv-shows-and-movies), provides a comprehensive listing of Netflix's content and allows for the exploration of various interesting patterns and trends. The analysis delves into aspects such as genre distribution, release year trends, and content ratings, providing valuable insights into Netflix's library.
