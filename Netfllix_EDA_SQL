@@ -1,0 +1,392 @@
+1.
+SELECT *
+FROM titles
+LEFT JOIN credits
+ON titles.id = credits.id;
+
+Result: 78162 rows returned
+
+
+
+2.
+SELECT *
+FROM titles
+LEFT JOIN credits
+ON titles.id = credits.id
+WHERE credits.id IS NULL;
+
+Result: 361 rows returned
+
+
+
+3. TOP COUNTRIES BY PRODUCTION COUNT
+SELECT production_countries, 
+count(*) As tv_shows_count
+FROM titles
+GROUP By production_countries
+ORDER BY tv_shows_count DESC;
+
+['US']	1959
+['IN']	599
+['JP']	264
+[]	229
+['KR']	222
+['GB']	218
+['ES']	161
+['FR']	125
+['CA']	107
+['MX']	98
+
+
+
+
+4. COUNT WHERE PRODUCTION IS ONLY GB
+SELECT COUNT(DISTINCT titles.id) AS tv_shows_count, production_countries 
+FROM titles
+LEFT JOIN credits ON titles.id = credits.id
+WHERE titles.production_countries = "['GB']"
+GROUP By production_countries;
+
+218	['GB']
+
+
+
+
+
+5. COUNT WHERE PRODUCTION LIST INCLUDES GB
+SELECT COUNT(DISTINCT titles.id) AS tv_shows_count_GB
+FROM titles
+LEFT JOIN credits ON titles.id = credits.id
+WHERE titles.production_countries LIKE '%GB%';
+
+tv_shows_count_GB
+404
+
+
+
+
+
+6. COUNT WHERE PRODUCTION IS IN EU
+SELECT COUNT(DISTINCT titles.id) AS tv_shows_count_EU
+FROM titles
+LEFT JOIN credits ON titles.id = credits.id
+WHERE titles.production_countries LIKE '%GB%'
+OR titles.production_countries LIKE '%FR%'
+OR titles.production_countries LIKE '%DE%'
+OR titles.production_countries LIKE '%IT%'
+OR titles.production_countries LIKE '%ES%'
+OR titles.production_countries LIKE '%PL%'
+OR titles.production_countries LIKE '%RO%'
+OR titles.production_countries LIKE '%NL%'
+OR titles.production_countries LIKE '%BE%'
+OR titles.production_countries LIKE '%CZ%'
+OR titles.production_countries LIKE '%GR%'
+OR titles.production_countries LIKE '%PT%'
+OR titles.production_countries LIKE '%HU%'
+OR titles.production_countries LIKE '%SE%'
+OR titles.production_countries LIKE '%AT%'
+OR titles.production_countries LIKE '%BG%'
+OR titles.production_countries LIKE '%DK%'
+OR titles.production_countries LIKE '%FI%'
+OR titles.production_countries LIKE '%SK%'
+OR titles.production_countries LIKE '%IE%'
+OR titles.production_countries LIKE '%HR%'
+OR titles.production_countries LIKE '%LT%'
+OR titles.production_countries LIKE '%SI%'
+OR titles.production_countries LIKE '%LV%'
+OR titles.production_countries LIKE '%EE%'
+OR titles.production_countries LIKE '%CY%'
+OR titles.production_countries LIKE '%LU%'
+OR titles.production_countries LIKE '%MT%';
+
+tv_shows_count_EU
+1162
+
+
+
+
+
+7.TOTAL TITLES
+SELECT COUNT(DISTINCT titles.id) AS total_titles
+FROM titles
+LEFT JOIN credits ON titles.id = credits.id;
+
+total_titles
+5850
+
+
+
+
+
+8. Count of Movies and Shows
+SELECT type, COUNT(DISTINCT titles.id) AS count 
+FROM titles
+LEFT JOIN credits ON titles.id = credits.id 
+GROUP BY type;
+
+type	count
+MOVIE	3744
+SHOW	2106
+
+
+
+
+
+9. Distribution of titles by release year
+SELECT release_year, COUNT(DISTINCT titles.id) AS count 
+FROM titles
+LEFT JOIN credits ON titles.id = credits.id 
+GROUP BY release_year
+ORDER BY release_year;
+
+release_year	count
+1945	1
+1954	2
+1956	1
+1958	1
+1959	1
+1960	1
+1961	1
+1963	1
+1966	1
+1967	2
+1969	2
+1971	1
+1972	3
+1973	1
+1974	1
+1975	2
+1976	3
+1977	1
+1978	1
+1979	5
+1980	3
+1981	3
+1982	6
+1983	4
+1984	6
+1985	1
+1986	4
+1987	6
+1988	7
+1989	12
+1990	7
+1991	13
+1992	3
+1993	14
+1994	16
+1995	10
+1996	7
+1997	16
+1998	22
+1999	13
+2000	11
+2001	20
+2002	22
+2003	31
+2004	38
+2005	32
+2006	45
+2007	48
+2008	63
+2009	59
+2010	66
+2011	86
+2012	107
+2013	135
+2014	153
+2015	223
+2016	362
+2017	563
+2018	773
+2019	836
+2020	814
+2021	787
+2022	371
+
+
+
+
+
+10. Average IMDB score of movies and shows
+WITH distinct_titles AS (
+    SELECT DISTINCT titles.id, titles.type, titles.imdb_score
+    FROM titles
+    LEFT JOIN credits ON titles.id = credits.id
+)
+SELECT type, AVG(imdb_score) AS avg_imdb_score
+FROM distinct_titles
+GROUP BY type;
+
+type	avg_imdb_score
+MOVIE	6.24674832312627
+SHOW	6.97792676637442
+
+max, min, median have a look as well
+
+
+
+11. Top 10 titles with highest IMDB score
+WITH distinct_titles AS (
+    SELECT DISTINCT titles.id, titles.type, titles.imdb_score, titles.title
+    FROM titles
+    LEFT JOIN credits ON titles.id = credits.id
+)
+-- SELECT type, AVG(imdb_score) AS avg_imdb_score
+-- FROM distinct_titles
+-- GROUP BY type;
+
+SELECT title, imdb_score
+FROM distinct_titles
+ORDER BY imdb_score 
+DESC LIMIT 10;
+
+title	imdb_score
+#ABtalks	9.6
+Breaking Bad	9.5
+Khawatir	9.5
+Avatar: The Last Airbender	9.3
+Our Planet	9.3
+Reply 1988	9.2
+Chhota Bheem & Krishna vs Zimbara	9.1
+My Mister	9.1
+The Last Dance	9.1
+Kota Factory	9.1
+
+
+
+
+
+12. Number of Shows with more than 1 season
+SELECT COUNT(DISTINCT titles.id) AS more_than_one_season
+FROM titles
+LEFT JOIN credits ON titles.id = credits.id
+WHERE type = 'SHOW' AND seasons > 1;
+
+more_than_one_season
+885
+
+
+
+
+
+13. Number of Shows with more than 1 season when prod country is only UK
+SELECT COUNT(DISTINCT titles.id) AS more_than_one_season
+FROM titles
+LEFT JOIN credits ON titles.id = credits.id
+WHERE type = 'SHOW' AND seasons > 1 AND titles.production_countries LIKE '%GB%';
+
+more_than_one_season
+73
+
+
+14. Most common genres
+SELECT genres, COUNT(*) AS count
+FROM titles
+GROUP BY genres
+ORDER BY count Desc;
+
+
+genres	count
+['comedy']	484
+['documentation']	329
+['drama']	328
+['comedy', 'drama']	135
+['drama', 'romance']	124
+['reality']	113
+['drama', 'comedy']	109
+['comedy', 'documentation']	104
+['comedy', 'romance']	69
+['comedy', 'drama', 'romance']	67
+
+
+15. Avg duration
+SELECT type, AVG(runtime) AS avg_runtime
+FROM titles
+GROUP BY type;
+
+type	avg_runtime
+MOVIE	98.2136752136752
+SHOW	38.9781576448243
+
+
+
+
+16. Most appearing actor
+WITH distinct_actors AS (
+    SELECT DISTINCT titles.id, credits.name
+    FROM titles
+    LEFT JOIN credits ON titles.id = credits.id
+    WHERE credits.role = 'ACTOR'
+)
+SELECT name, COUNT(*) AS appearance_count
+FROM distinct_actors
+GROUP BY name
+ORDER BY appearance_count DESC
+LIMIT 10;
+
+name	appearance_count
+Kareena Kapoor Khan	25
+Boman Irani	25
+Shah Rukh Khan	23
+Takahiro Sakurai	21
+Priyanka Chopra Jonas	20
+Paresh Rawal	20
+Amitabh Bachchan	20
+Yuki Kaji	19
+Nawazuddin Siddiqui	19
+Junichi Suwabe	19
+
+17. Most appearing director
+WITH distinct_directors AS (
+    SELECT DISTINCT titles.id, credits.name
+    FROM titles
+    LEFT JOIN credits ON titles.id = credits.id
+    WHERE credits.role = 'DIRECTOR'
+)
+SELECT name, COUNT(*) AS appearance_count
+FROM distinct_directors
+GROUP BY name
+ORDER BY appearance_count DESC
+LIMIT 10;
+
+name	appearance_count
+Raúl Campos	20
+Jan Suter	19
+Ryan Polito	17
+Jay Karas	15
+Marcus Raboy	14
+Jay Chapman	12
+Cathy Garcia-Molina	12
+Youssef Chahine	11
+Troy Miller	8
+Suhas Kadav	8
+
+18. Top 5 titles with most IMDB vote count
+SELECT title, type, imdb_score, imdb_votes
+FROM titles 
+ORDER BY imdb_votes 
+DESC LIMIT 5;
+
+title	type	imdb_score	imdb_votes
+Inception	MOVIE	8.8	2294231
+Forrest Gump	MOVIE	8.8	2021343
+Breaking Bad	SHOW	9.5	1775990
+The Dark Knight Rises	MOVIE	8.4	1669067
+Se7en	MOVIE	8.6	1606270
+
+
+19. Top 5 titles with most IMDB score
+SELECT title, type, imdb_score, imdb_votes 
+FROM titles 
+ORDER BY imdb_score 
+DESC LIMIT 5;
+
+title	type	imdb_score	imdb_votes
+#ABtalks	SHOW	9.6	7
+Breaking Bad	SHOW	9.5	1775990
+Khawatir	SHOW	9.5	3115
+Avatar: The Last Airbender	SHOW	9.3	303666
+Our Planet	SHOW	9.3	42259
+
+
